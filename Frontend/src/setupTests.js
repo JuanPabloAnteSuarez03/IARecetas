@@ -8,7 +8,7 @@ import {
 } from '../pages/store/inventarioStore'
 
 // ── Re-import the mocked Firestore functions ───────────────
-import { getDocs, addDoc, deleteDoc, updateDoc, collection, doc } from 'firebase/firestore'
+import { getDocs, addDoc, deleteDoc, updateDoc} from 'firebase/firestore'
 
 describe('inventarioStore', () => {
 
