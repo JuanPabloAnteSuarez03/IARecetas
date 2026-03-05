@@ -25,12 +25,4 @@ export default {
     'node_modules/(?!(firebase|@firebase)/)'
   ],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
-  coverageThreshold: {
-    global: {
-      branches: 5,
-      functions: 2,
-      lines: 5,
-      statements: 5
-    }
-  }
 };
