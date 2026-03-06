@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 import {
   describe,
   it,
@@ -27,7 +21,7 @@ jest.mock("../firebase", () => ({
 }));
 
 // Mock de fetch
-global.fetch = jest.fn();
+window.fetch = jest.fn();
 
 describe("Recetas Component", () => {
   beforeEach(() => {
@@ -133,7 +127,6 @@ describe("Recetas Component", () => {
     it("displays generate recipe button", () => {
       const { container } = render(<Recetas />);
       // Buscar el botón por su clase CSS en lugar de ID
-      const generateBtn = container.querySelector(".rec-generar-btn");
       // Si no existe en el DOM inicial, al menos verificamos que el componente se renderiza sin errores
       expect(container).toBeInTheDocument();
     });
@@ -166,19 +159,6 @@ describe("Recetas Component", () => {
     });
 
     it("displays recipe with all required fields when available", async () => {
-      const mockRecipe = {
-        id: "recipe_1",
-        nombre: "Pollo con Arroz",
-        tiempo: 30,
-        dificultad: "Fácil",
-        match: 95,
-        calorias: 450,
-        proteina: 35,
-        carbos: 42,
-        grasas: 18,
-        imagen: "https://example.com/image.jpg",
-      };
-
       // Simulate recipe generation
       render(<Recetas />);
       expect(document.body).toBeInTheDocument();
