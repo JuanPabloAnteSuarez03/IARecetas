@@ -24,7 +24,7 @@ ENV VITE_FIREBASE_MEASUREMENT_ID=$VITE_FIREBASE_MEASUREMENT_ID
 COPY package*.json ./
 
 # Instala las dependencias
-RUN npm ci
+RUN npm install
 
 # Copia el resto del código
 COPY . .
