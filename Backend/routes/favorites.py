@@ -55,13 +55,41 @@ def add_to_favorite():
 
 """
 Ruta para obtener la lista de favoritos de un usuario.
-Ruta: Post /api/favorites/list
+Ruta: Post /api/favorites/
 Requiere un request body con el UID del usuario para obtener la lista de favoritos asociados a
 ese UID.
 """
-@favorites_bp.route('/list', methods=['POST'])
+@favorites_bp.route('/', methods=['POST'])
 def get_favorites():
     data = request.json
     uid = data.get('uid')
     docs = db.collection('users').document(uid).collection('favorites').stream()
     return jsonify([doc.to_dict() for doc in docs]), 200
+
+@favorites_bp.route('/delete', methods=['DELETE'])
+def delete_favorite():
+    try:
+        data = request.json
+        uid = data.get('uid')
+        fav_id = data.get('fav_id')
+
+        if not uid or not fav_id:
+            return jsonify({"error": "UID y fav_id son requeridos"}), 400
+
+        # Referencia al documento específico
+        fav_ref = db.collection('users').document(uid).collection('favorites').document(fav_id)
+        
+        # Verificar si existe antes de borrar
+        if not fav_ref.get().exists:
+            return jsonify({"error": "El favorito no existe"}), 404
+
+        # Eliminar el documento
+        fav_ref.delete()
+
+        return jsonify({
+            "status": "success",
+            "message": f"Favorito {fav_id} eliminado correctamente"
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

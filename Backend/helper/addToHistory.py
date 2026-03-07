@@ -20,7 +20,7 @@ def saveRecipe(uid, recipe_data):
 
     docs = list(history_ref.order_by("date", direction=firestore.Query.ASCENDING).stream())
 
-    if len(docs) >= 5:
+    if len(docs) >= 6:
         docs[0].reference.delete()
 
     return new_doc.id
