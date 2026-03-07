@@ -11,15 +11,17 @@ class TestRecetasIACompleto:
     @patch('routes.recetas_ia.genai.GenerativeModel')
     def test_generar_receta_exito_total(self, mock_model, mock_save, client):
         """
-        Verifica que la IA genere la receta, se limpie el JSON y se guarde en Firebase.
+        Versión simplificada - solo mockeamos donde se importa la función.
         """
-        # Simulamos que la base de datos devuelve un ID para la nueva receta
+        
         mock_save.return_value = "id_receta_123"
         
-        # Simulamos respuesta de Gemini corregida (sin errores de comillas)
+        mock_instance = MagicMock()
         mock_response = MagicMock()
-        mock_response.text = '{"titulo": "Tacos Saludables", "descripcion": "Deliciosos tacos con pollo, tortilla y aguacate.", "tiempo_estimado": "30", "porciones": "4", "dificultad": "Fácil", "calorias": 500, "proteina": 30, "carbos": 40, "grasas": 20, "ingredientes": [{"nombre": "pollo", "cantidad": "500g"}, {"nombre": "tortilla", "cantidad": "8 unidades"}, {"nombre": "aguacate", "cantidad": "1 unidad"}], "instrucciones": ["Cocina el pollo en una sartén.", "Calienta las tortillas.", "Arma los tacos con pollo y aguacate."]}'
-        mock_model.return_value.generate_content.return_value = mock_response
+        mock_response.text = '{"titulo": "Tacos Saludables", "descripcion": "Deliciosos tacos...", "tiempo_estimado": "30", "porciones": "4", "dificultad": "Fácil", "calorias": 500, "proteina": 30, "carbos": 40, "grasas": 20, "ingredientes": [{"nombre": "pollo", "cantidad": "500g"}, {"nombre": "tortilla", "cantidad": "8 unidades"}, {"nombre": "aguacate", "cantidad": "1 unidad"}], "instrucciones": ["Cocina el pollo en una sartén.", "Calienta las tortillas.", "Arma los tacos con pollo y aguacate."]}'
+        
+        mock_instance.generate_content.return_value = mock_response
+        mock_model.return_value = mock_instance
 
         payload = {
             'ingredientes': 'pollo, tortilla, aguacate',
@@ -29,7 +31,6 @@ class TestRecetasIACompleto:
         response = client.post('/api/recipes/generate', json=payload)
         data = json.loads(response.data)
 
-        # Corregido: Verificamos que sea 200 y que los datos coincidan
         assert response.status_code == 200
         assert data['receta']['titulo'] == "Tacos Saludables"
         assert data['receta_id'] == "id_receta_123"
