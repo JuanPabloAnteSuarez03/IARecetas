@@ -44,7 +44,6 @@ describe('inventarioStore', () => {
   it('updateProducto actualiza por id', async () => {
     const updated = await updateProducto({
       id: 'doc-1',
-      nombre: 'Harina',
       cantidad: 3,
       nombre: 'Harina Integral',
     })
