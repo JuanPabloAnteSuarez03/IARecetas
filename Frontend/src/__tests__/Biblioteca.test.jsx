@@ -16,6 +16,9 @@ window.fetch = jest.fn();
 describe("Biblioteca Component", () => {
   beforeEach(() => {
     fetch.mockClear();
+    fetch.mockResolvedValue({
+      json: async () => [],
+    });
     sessionStorage.clear();
     sessionStorage.setItem("uid", "test_user_123");
   });

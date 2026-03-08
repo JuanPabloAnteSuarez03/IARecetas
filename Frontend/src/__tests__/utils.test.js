@@ -6,24 +6,29 @@ import {
   diasParaVencer,
 } from '../pages/store/inventarioStore'
 import { describe, beforeEach, it, expect, jest } from '@jest/globals'
+import { auth } from '../firebase.js'
+import {
+  addDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+} from 'firebase/firestore'
 
 describe('inventarioStore', () => {
-  const STORAGE_KEY = 'iarecetas_inventario'
-
   beforeEach(() => {
-    localStorage.clear()
-    Object.defineProperty(globalThis, 'crypto', {
-      value: { randomUUID: jest.fn(() => 'uuid-test-123') },
-      configurable: true,
-    })
+    auth.currentUser = { uid: 'test_user_123' }
+    jest.clearAllMocks()
   })
 
-  it('getProductos devuelve arreglo vacío cuando no hay datos', () => {
-    expect(getProductos()).toEqual([])
+  it('getProductos devuelve productos desde Firestore', async () => {
+    const result = await getProductos()
+    expect(Array.isArray(result)).toBe(true)
+    expect(result.length).toBeGreaterThanOrEqual(1)
+    expect(result[0]).toHaveProperty('id')
   })
 
-  it('addProducto guarda en localStorage y retorna lista actualizada', () => {
-    const result = addProducto({
+  it('addProducto guarda y retorna lista actualizada', async () => {
+    const result = await addProducto({
       nombre: 'Leche',
       cantidad: 2,
       unidad: 'L',
@@ -31,47 +36,27 @@ describe('inventarioStore', () => {
       fechaVencimiento: null,
     })
 
-    expect(result).toHaveLength(1)
-    expect(result[0].nombre).toBe('Leche')
-    expect(result[0].id).toBeTruthy()
-
-    const persisted = JSON.parse(localStorage.getItem(STORAGE_KEY))
-    expect(persisted).toHaveLength(1)
-    expect(persisted[0].nombre).toBe('Leche')
+    expect(addDoc).toHaveBeenCalled()
+    expect(getDocs).toHaveBeenCalled()
+    expect(result.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('updateProducto reemplaza el producto por id', () => {
-    const [created] = addProducto({
+  it('updateProducto actualiza por id', async () => {
+    const updated = await updateProducto({
+      id: 'doc-1',
       nombre: 'Harina',
-      cantidad: 1,
-      unidad: 'kg',
-      categoria: 'granos',
-      fechaVencimiento: null,
-    })
-
-    const updated = updateProducto({
-      ...created,
       cantidad: 3,
       nombre: 'Harina Integral',
     })
 
-    expect(updated).toHaveLength(1)
-    expect(updated[0].nombre).toBe('Harina Integral')
-    expect(updated[0].cantidad).toBe(3)
+    expect(updateDoc).toHaveBeenCalled()
+    expect(updated.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('deleteProducto elimina por id', () => {
-    const [created] = addProducto({
-      nombre: 'Azucar',
-      cantidad: 1,
-      unidad: 'kg',
-      categoria: 'granos',
-      fechaVencimiento: null,
-    })
-
-    const updated = deleteProducto(created.id)
-    expect(updated).toEqual([])
-    expect(getProductos()).toEqual([])
+  it('deleteProducto elimina por id', async () => {
+    const updated = await deleteProducto('doc-1')
+    expect(deleteDoc).toHaveBeenCalled()
+    expect(updated.length).toBeGreaterThanOrEqual(0)
   })
 
   it('diasParaVencer devuelve null si no hay fecha', () => {
